@@ -1,40 +1,35 @@
-import time
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
-def cal(x, tested, is_reversd_nested):
+def cal(x, tested, len_to_note):
     if x == 1:
-        return 0
+        return 0, len_to_note
     
-    if is_reversd_nested:
-        for i in reversed(tested):
-            if x == i:
-                return i
-    else:
-        for i in tested:
-            if x == i:
-                return i
+    for i in reversed(tested):
+        if x == i:
+            return i, len_to_note
 
     if x % 2 == 0:
         x /=2
     else:
         x = 3 * x + 1
-    return cal(x, tested, is_reversd_nested)
+    return cal(x, tested, len_to_note+1)
 
-tries = 100
+tries = 10000
 
-t = time.time()
 nested_x = []
 nested_y = []
 tested = []
-for i in range(1, tries):
-    nest_num_from_high = cal(i, tested, True)
-    nest_num_from_low = cal(i, tested, False)
-    assert nest_num_from_high == nest_num_from_low
+lens_to_note = []
+for i in tqdm(range(1, tries)):
+    nest_num, len_to_note = cal(i, tested, 0)
     tested.append(i)
-    if nest_num_from_high != 0:
+    if nest_num != 0:
         nested_x.append(i)
-        nested_y.append(nest_num_from_high)
+        nested_y.append(nest_num)
+        lens_to_note.append(len_to_note)
 
-print(time.time()-t)
-plt.plot(nested_x, nested_y, "o", ms=1, c="black")
+fig, axs = plt.subplots(2)
+axs[0].plot(nested_x, nested_y, "o", ms=0.5, c="black")
+axs[1].plot(nested_x, lens_to_note, "o", ms=0.5, c="blue")
 plt.show()
